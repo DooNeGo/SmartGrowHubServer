@@ -3,7 +3,7 @@ using SmartGrowHubServer.ApplicationL.Interfaces;
 using SmartGrowHubServer.Domain.Common;
 using SmartGrowHubServer.Domain.Model;
 using SmartGrowHubServer.Infrastructure.Data.Converters;
-using SmartGrowHubServer.Infrastructure.Extensions;
+using SmartGrowHubServer.Infrastructure.Data.Extensions;
 
 namespace SmartGrowHubServer.Infrastructure.Data;
 
@@ -33,45 +33,29 @@ internal sealed class ApplicationContext : DbContext, IApplicationContext
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-        configurationBuilder.Properties<Ulid>()
-            .HaveConversion<UlidToByteArrayConverter>();
+        base.ConfigureConventions(configurationBuilder);
 
-        configurationBuilder.Properties<EmailAddress>()
-            .HaveConversion<EmailAddressToStringConverter>();
-
-        configurationBuilder.Properties<NonEmptyString>()
-            .HaveConversion<NonEmptyStringConverter>();
-
-        configurationBuilder.Properties<CreatedAt>()
-            .HaveConversion<CreatedAtToDateConverter>();
+        configurationBuilder
+            .AddConversion<EmailAddress, EmailAddressToStringConverter>()
+            .AddConversion<NonEmptyString, NonEmptyStringConverter>()
+            .AddConversion<CreatedAt, CreatedAtToDateConverter>()
+            .AddIdConversion<User>()
+            .AddIdConversion<GrowHub>()
+            .AddIdConversion<Plant>()
+            .AddIdConversion<Setting>()
+            .AddIdConversion<SensorReading>()
+            .AddIdConversion<Component>();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //modelBuilder.ApplyGlobalConversion<UlidToByteArrayConverter, Ulid, byte[]>();
+        base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<User>().HasKey(user => user.Id);
-        modelBuilder.Entity<User>().Property(user => user.Id)
-            .HasConversion(id => id.Value, value => new UserId(value));
-
         modelBuilder.Entity<GrowHub>().HasKey(hub => hub.Id);
-        modelBuilder.Entity<GrowHub>().Property(hub => hub.Id)
-            .HasConversion(id => id.Value, value => new GrowHubId(value));
-
         modelBuilder.Entity<Plant>().HasKey(plant => plant.Id);
-        modelBuilder.Entity<Plant>().Property(plant => plant.Id)
-            .HasConversion(id => id.Value, value => new PlantId(value));
-
         modelBuilder.Entity<Setting>().HasKey(setting => setting.Id);
-        modelBuilder.Entity<Setting>().Property(setting => setting.Id)
-            .HasConversion(id => id.Value, value => new SettingId(value));
-
         modelBuilder.Entity<SensorReading>().HasKey(reading => reading.Id);
-        modelBuilder.Entity<SensorReading>().Property(reading => reading.Id)
-            .HasConversion(id => id.Value, value => new SensorReadingId(value));
-
         modelBuilder.Entity<Component>().HasKey(component => component.Id);
-        modelBuilder.Entity<Component>().Property(component => component.Id)
-            .HasConversion(id => id.Value, value => new ComponentId(value));
     }
 }

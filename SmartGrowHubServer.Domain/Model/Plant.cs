@@ -2,17 +2,8 @@
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct PlantId(Ulid Value)
+public sealed record Plant(Id<Plant> Id, NonEmptyString Name, Id<GrowHub> GrowHubId)
 {
-    public static PlantId Empty { get; }
-
-    public static PlantId Create() => new(Ulid.NewUlid());
-}
-
-public sealed record Plant(PlantId Id, NonEmptyString Name, GrowHubId GrowHubId)
-{
-    private Plant() : this(
-        PlantId.Empty,
-        NonEmptyString.Empty,
-        GrowHubId.Empty) { }    // Used by EF Core
+    private Plant()
+        : this(default, NonEmptyString.Empty, default) { }  // Used by EF Core
 }

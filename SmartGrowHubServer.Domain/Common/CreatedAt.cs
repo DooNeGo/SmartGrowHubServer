@@ -1,5 +1,6 @@
 ﻿using LanguageExt.Common;
 using SmartGrowHubServer.Domain.Exceptions;
+using SmartGrowHubServer.Domain.Extensions;
 
 namespace SmartGrowHubServer.Domain.Common;
 
@@ -12,10 +13,10 @@ public readonly record struct CreatedAt
     public DateOnly Date { get; }
 
     public static implicit operator DateOnly(CreatedAt createdAt) => createdAt.Date;
-    public static explicit operator CreatedAt(DateOnly date) => Create(date).IfFail(e => throw e);
+    public static explicit operator CreatedAt(DateOnly date) => Create(date).ThrowIfFail();
 
     public static Result<CreatedAt> Create(DateOnly Date) =>
-        Date <= DateOnly.FromDateTime(TimeProvider.System.GetLocalNow().Date)
+        Date <= DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().Date)
             ? new CreatedAt(Date)
             : new Result<CreatedAt>(new InvalidCreatedAtException());
 

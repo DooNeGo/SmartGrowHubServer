@@ -1,11 +1,6 @@
 @SmartGrowHubServer_HostAddress = http://localhost:5116
 
-GET {{SmartGrowHubServer_HostAddress}}/todos/
-Accept: application/json
-
-###
-
-GET {{SmartGrowHubServer_HostAddress}}/todos/1
+GET {{SmartGrowHubServer_HostAddress}}/
 Accept: application/json
 
 ###

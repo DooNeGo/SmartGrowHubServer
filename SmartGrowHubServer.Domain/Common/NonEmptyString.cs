@@ -1,5 +1,6 @@
 ﻿using LanguageExt.Common;
 using SmartGrowHubServer.Domain.Exceptions;
+using SmartGrowHubServer.Domain.Extensions;
 using System.Globalization;
 
 namespace SmartGrowHubServer.Domain.Common;
@@ -13,7 +14,7 @@ public readonly record struct NonEmptyString
     public string Value { get; }
 
     public static implicit operator string(NonEmptyString value) => value.Value;
-    public static explicit operator NonEmptyString(string value) => Create(value).IfFail(e => throw e);
+    public static explicit operator NonEmptyString(string value) => Create(value).ThrowIfFail();
 
     public static Result<NonEmptyString> Create(string value) =>
         !string.IsNullOrWhiteSpace(value) ? new NonEmptyString(value)

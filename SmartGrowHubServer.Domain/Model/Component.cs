@@ -1,17 +1,12 @@
-﻿namespace SmartGrowHubServer.Domain.Model;
+﻿using SmartGrowHubServer.Domain.Common;
 
-public readonly record struct ComponentId(Ulid Value)
-{
-    public static ComponentId Empty { get; }
+namespace SmartGrowHubServer.Domain.Model;
 
-    public static ComponentId Create() => new(Ulid.NewUlid());
-}
-
-public sealed record Component(ComponentId Id, ComponentType Type, SettingId SettingId)
+public sealed record Component(Id<Component> Id, ComponentType Type, Id<Setting> SettingId)
     : IEquatable<Component>
 {
     private Component()
-        : this(ComponentId.Empty, default, SettingId.Empty) { } // Used by EF Core
+        : this(default, default, default) { } // Used by EF Core
 
     public override int GetHashCode() => Id.GetHashCode();
 

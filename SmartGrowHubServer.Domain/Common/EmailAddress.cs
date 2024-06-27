@@ -1,5 +1,6 @@
 ﻿using LanguageExt.Common;
 using SmartGrowHubServer.Domain.Exceptions;
+using SmartGrowHubServer.Domain.Extensions;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartGrowHubServer.Domain.Common;
@@ -15,7 +16,7 @@ public readonly record struct EmailAddress
     public string Value { get; }
 
     public static implicit operator string(EmailAddress email) => email.Value;
-    public static explicit operator EmailAddress(string value) => Create(value).IfFail(e => throw e);
+    public static explicit operator EmailAddress(string value) => Create(value).ThrowIfFail();
 
     public static Result<EmailAddress> Create(string value) =>
         !string.IsNullOrEmpty(value) && Attribute.IsValid(value)

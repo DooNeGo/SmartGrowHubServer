@@ -1,23 +1,15 @@
 ﻿using LanguageExt.Common;
+using SmartGrowHubServer.Domain.Common;
 using SmartGrowHubServer.Domain.Exceptions;
 using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct SettingId(Ulid Value)
+public sealed record Setting(Id<Setting> Id, SettingType Type,
+    ImmutableArray<Component> Components, Id<GrowHub> GrowHubId)
 {
-    public static SettingId Empty { get; }
-
-    public static SettingId Create() => new(Ulid.NewUlid());
-}
-
-public sealed record Setting(SettingId Id, SettingType Type,
-    ImmutableArray<Component> Components, GrowHubId GrowHubId)
-{
-    private Setting() : this(
-        SettingId.Empty,
-        default, [],
-        GrowHubId.Empty) { }    // Used by EF Core
+    private Setting()
+        : this(default, default, [], default) { }     // Used by EF Core
 
     public Result<Setting> AddComponent(Component component) =>
         !Components.Contains(component)

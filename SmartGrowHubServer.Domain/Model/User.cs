@@ -5,15 +5,8 @@ using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct UserId(Ulid Value)
-{
-    public static UserId Empty { get; }
-
-    public static UserId Create() => new(Ulid.NewUlid());
-}
-
 public sealed record User(
-    UserId Id,
+    Id<User> Id,
     NonEmptyString UserName,
     NonEmptyString Password,
     EmailAddress Email,
@@ -22,12 +15,13 @@ public sealed record User(
     ImmutableArray<GrowHub> GrowHubs)
 {
     private User() : this(
-        UserId.Empty, 
+        default,
         NonEmptyString.Empty,
         NonEmptyString.Empty,
         EmailAddress.NotLoaded,
         NonEmptyString.Empty,
-        CreatedAt.Empty, []) { }    // Used by EF Core
+        CreatedAt.Empty, [])
+    { }    // Used by EF Core
 
     public Result<User> AddGrowHub(GrowHub hub) => !GrowHubs.Contains(hub)
         ? this with { GrowHubs = GrowHubs.Add(hub) }
