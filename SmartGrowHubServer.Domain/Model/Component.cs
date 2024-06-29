@@ -2,8 +2,10 @@
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public sealed record Component(Id<Component> Id, ComponentType Type, Id<Setting> SettingId)
-    : IEquatable<Component>
+public sealed record Component(
+    Id<Component> Id,
+    ComponentType Type,
+    Id<Setting> SettingId) : IEquatable<Component>
 {
     private Component()
         : this(default, default, default) { } // Used by EF Core

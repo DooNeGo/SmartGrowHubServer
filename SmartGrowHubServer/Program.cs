@@ -1,35 +1,45 @@
+using LanguageExt;
+using SmartGrowHubServer.ApplicationL;
 using SmartGrowHubServer.Domain.Common;
-using SmartGrowHubServer.Domain.Extensions;
 using SmartGrowHubServer.Domain.Model;
+using SmartGrowHubServer.DTOs.Extensions;
+using SmartGrowHubServer.Infrastructure;
+using SmartGrowHubServer.Requests;
 using SmartGrowHubServer.SerializerContext;
+using System.Collections.Immutable;
 
-namespace SmartGrowHubServer;
+WebApplicationBuilder builder = WebApplication.CreateSlimBuilder(args);
 
-public sealed class Program
+builder.Services.ConfigureHttpJsonOptions(options =>
 {
-    public static void Main(string[] args)
-    {
-        WebApplicationBuilder builder = WebApplication.CreateSlimBuilder(args);
+    options.SerializerOptions.TypeInfoResolverChain
+        .Add(SmartGrowHubSerializerContext.Default);
+});
 
-        builder.Services.ConfigureHttpJsonOptions(options =>
-        {
-            options.SerializerOptions.TypeInfoResolverChain
-                .Add(SmartGrowHubSerializerContext.Default);
-        });
+builder.Services.AddApplication().AddInfrastructure();
 
-        WebApplication app = builder.Build();
+WebApplication app = builder.Build();
 
-        app.MapGet("/", () => Id.Create<User>().ToString());
+Try<User> user = User.Create(
+    "Mathew123", "Mathew123",
+    "matvey@gmail.com", "DooNeGo",
+    Prelude.Try(ImmutableArray<GrowHub>.Empty));
 
-        app.MapGet("/users", () => new User(
-            Id.Create<User>(),
-            NonEmptyString.Create("Mathew123").ThrowIfFail(),
-            NonEmptyString.Create("qwerty123").ThrowIfFail(),
-            EmailAddress.Create("mat@gmail.com").ThrowIfFail(),
-            NonEmptyString.Create("Mathew").ThrowIfFail(),
-            CreatedAt.Create(DateOnly.FromDateTime(DateTime.Now)).ThrowIfFail(),
-            []));
+RouteGroupBuilder apiGroup = app.MapGroup("/api");
 
-        app.Run();
-    }
-}
+apiGroup.MapGet("/user", () => user.Match(
+    Succ: user => (object)user.ToDto(),
+    Fail: ex => Results.BadRequest(ex.Message)));
+
+apiGroup.MapPost("/auth/register", (RegisterRequest request) =>
+    User.Create(
+        request.UserName,
+        request.Password,
+        request.Email,
+        request.DisplayName,
+        Prelude.Try(ImmutableArray<GrowHub>.Empty))
+    .Match(
+        Succ: user => (object)user.ToDto(),
+        Fail: ex => Results.BadRequest(ex.Message)));
+
+app.Run();

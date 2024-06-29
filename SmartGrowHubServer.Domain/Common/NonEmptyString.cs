@@ -1,24 +1,24 @@
-﻿using LanguageExt.Common;
-using SmartGrowHubServer.Domain.Exceptions;
-using SmartGrowHubServer.Domain.Extensions;
+﻿using SmartGrowHubServer.Domain.Exceptions;
 using System.Globalization;
 
 namespace SmartGrowHubServer.Domain.Common;
 
 public readonly record struct NonEmptyString
 {
+    private const string ErrorMessage = "The string must not be empty or contain spaces";
+
     internal static NonEmptyString Empty { get; } = new("Empty");
 
     private NonEmptyString(string value) => Value = value;
 
-    public string Value { get; }
+    public string Value { get; } = Empty;
 
     public static implicit operator string(NonEmptyString value) => value.Value;
-    public static explicit operator NonEmptyString(string value) => Create(value).ThrowIfFail();
+    public static explicit operator NonEmptyString(string value) => Create(value).IfFailThrow();
 
-    public static Result<NonEmptyString> Create(string value) =>
+    public static Try<NonEmptyString> Create(string value) => () =>
         !string.IsNullOrWhiteSpace(value) ? new NonEmptyString(value)
-            : new Result<NonEmptyString>(new InvalidStringException());
+            : new Result<NonEmptyString>(new InvalidStringException(ErrorMessage));
 
     public override string ToString() => Value;
 

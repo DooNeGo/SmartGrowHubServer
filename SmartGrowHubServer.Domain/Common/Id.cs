@@ -2,6 +2,10 @@
 
 public readonly record struct Id<T>(Ulid Value)
 {
+    public static implicit operator Ulid(Id<T> id) => id.Value;
+
+    public static Id<T> Create() => new(Ulid.NewUlid());
+
     public override string ToString() => Value.ToString();
 }
 

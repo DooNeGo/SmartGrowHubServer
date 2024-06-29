@@ -1,21 +1,19 @@
-﻿using LanguageExt.Common;
-using SmartGrowHubServer.Domain.Exceptions;
-using SmartGrowHubServer.Domain.Extensions;
+﻿using SmartGrowHubServer.Domain.Exceptions;
 
 namespace SmartGrowHubServer.Domain.Common;
 
-public readonly record struct CreatedAt
+public sealed record CreatedAt
 {
-    internal static CreatedAt Empty { get; }
+    internal static CreatedAt Empty { get; } = new(default(DateOnly));
 
     private CreatedAt(DateOnly date) => Date = date;
 
     public DateOnly Date { get; }
 
     public static implicit operator DateOnly(CreatedAt createdAt) => createdAt.Date;
-    public static explicit operator CreatedAt(DateOnly date) => Create(date).ThrowIfFail();
+    public static explicit operator CreatedAt(DateOnly date) => Create(date).IfFailThrow();
 
-    public static Result<CreatedAt> Create(DateOnly Date) =>
+    public static Try<CreatedAt> Create(DateOnly Date) => () =>
         Date <= DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().Date)
             ? new CreatedAt(Date)
             : new Result<CreatedAt>(new InvalidCreatedAtException());
