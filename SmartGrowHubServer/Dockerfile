@@ -7,13 +7,10 @@ EXPOSE 8080
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | sudo tee /etc/apt/trusted.gpg.d/microsoft.asc
-RUN sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/20.04/mssql-server-2022.list)"
-
 # Install clang/zlib1g-dev dependencies for publishing to native
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    clang zlib1g-dev mssql-server
+    clang zlib1g-dev
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["SmartGrowHubServer/SmartGrowHubServer.csproj", "SmartGrowHubServer/"]

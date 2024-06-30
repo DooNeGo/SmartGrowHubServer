@@ -5,5 +5,5 @@ namespace SmartGrowHubServer.Infrastructure.Data.Converters;
 
 internal sealed class CreatedAtToDateConverter()
     : ValueConverter<CreatedAt, DateOnly>(
-        createAt => createAt.Date,
+        createdAt => createdAt.Value,
         date => (CreatedAt)date);

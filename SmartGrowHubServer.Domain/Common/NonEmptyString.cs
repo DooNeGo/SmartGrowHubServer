@@ -3,21 +3,21 @@ using System.Globalization;
 
 namespace SmartGrowHubServer.Domain.Common;
 
-public readonly record struct NonEmptyString
+public readonly record struct NonEmptyString : IValueObject<NonEmptyString, string>
 {
-    private const string ErrorMessage = "The string must not be empty or contain spaces";
+    private const string ErrorMessage = "The value must not be empty or contain spaces";
 
-    internal static NonEmptyString Empty { get; } = new("Empty");
+    internal static NonEmptyString Default { get; } = (NonEmptyString)"Empty";
 
     private NonEmptyString(string value) => Value = value;
 
-    public string Value { get; } = Empty;
+    public string Value { get; } = Default;
 
     public static implicit operator string(NonEmptyString value) => value.Value;
     public static explicit operator NonEmptyString(string value) => Create(value).IfFailThrow();
 
-    public static Try<NonEmptyString> Create(string value) => () =>
-        !string.IsNullOrWhiteSpace(value) ? new NonEmptyString(value)
+    public static Try<NonEmptyString> Create(string? rawValue) => () =>
+        !string.IsNullOrWhiteSpace(rawValue) ? new NonEmptyString(rawValue)
             : new Result<NonEmptyString>(new InvalidStringException(ErrorMessage));
 
     public override string ToString() => Value;

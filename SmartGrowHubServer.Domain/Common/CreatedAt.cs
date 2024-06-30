@@ -2,21 +2,21 @@
 
 namespace SmartGrowHubServer.Domain.Common;
 
-public sealed record CreatedAt
+public readonly record struct CreatedAt : IValueObject<CreatedAt, DateOnly>
 {
-    internal static CreatedAt Empty { get; } = new(default(DateOnly));
+    private static readonly TimeProvider TimeProvider = TimeProvider.System;
 
-    private CreatedAt(DateOnly date) => Date = date;
+    private CreatedAt(DateOnly date) => Value = date;
 
-    public DateOnly Date { get; }
+    public DateOnly Value { get; }
 
-    public static implicit operator DateOnly(CreatedAt createdAt) => createdAt.Date;
+    public static implicit operator DateOnly(CreatedAt createdAt) => createdAt.Value;
     public static explicit operator CreatedAt(DateOnly date) => Create(date).IfFailThrow();
 
-    public static Try<CreatedAt> Create(DateOnly Date) => () =>
-        Date <= DateOnly.FromDateTime(TimeProvider.System.GetUtcNow().Date)
-            ? new CreatedAt(Date)
+    public static Try<CreatedAt> Create(DateOnly rawValue) => () =>
+        rawValue <= DateOnly.FromDateTime(TimeProvider.GetUtcNow().Date)
+            ? new CreatedAt(rawValue)
             : new Result<CreatedAt>(new InvalidCreatedAtException());
 
-    public override string ToString() => Date.ToString();
+    public override string ToString() => Value.ToString();
 }

@@ -11,11 +11,8 @@ public sealed record SensorReading(
     Id<GrowHub> GrowHubItemId)
 {
     private SensorReading() : this(
-        default,
-        default,
-        NonEmptyString.Empty,
-        NonEmptyString.Empty,
-        CreatedAt.Empty,
-        default)
+        default, default,
+        default, default,
+        default, default)
     { }    // Used by EF Core
 }

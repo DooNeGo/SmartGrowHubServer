@@ -1,6 +1,5 @@
 using LanguageExt;
 using SmartGrowHubServer.ApplicationL;
-using SmartGrowHubServer.Domain.Common;
 using SmartGrowHubServer.Domain.Model;
 using SmartGrowHubServer.DTOs.Extensions;
 using SmartGrowHubServer.Infrastructure;
@@ -28,7 +27,7 @@ Try<User> user = User.Create(
 RouteGroupBuilder apiGroup = app.MapGroup("/api");
 
 apiGroup.MapGet("/user", () => user.Match(
-    Succ: user => (object)user.ToDto(),
+    Succ: user => Results.Ok(user.ToDto()),
     Fail: ex => Results.BadRequest(ex.Message)));
 
 apiGroup.MapPost("/auth/register", (RegisterRequest request) =>
@@ -39,7 +38,7 @@ apiGroup.MapPost("/auth/register", (RegisterRequest request) =>
         request.DisplayName,
         Prelude.Try(ImmutableArray<GrowHub>.Empty))
     .Match(
-        Succ: user => (object)user.ToDto(),
+        Succ: user => Results.Ok(user.ToDto()),
         Fail: ex => Results.BadRequest(ex.Message)));
 
 app.Run();
