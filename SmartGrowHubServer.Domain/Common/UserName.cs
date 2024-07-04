@@ -1,13 +1,12 @@
-﻿using SmartGrowHubServer.Domain.Exceptions;
+﻿using SmartGrowHubServer.Domain.Common.Interfaces;
+using SmartGrowHubServer.Domain.Extensions;
 
 namespace SmartGrowHubServer.Domain.Common;
 
 public readonly record struct UserName : IValueObject<UserName, string>
 {
     private const int MinimumLength = 6;
-
-    private static readonly string LengthErrorMessage =
-        $"The string must not be shorter than {MinimumLength}";
+    private const string Prefix = "UserName:";
 
     private static readonly UserName Default = (UserName)"EmptyUserName";
 
@@ -16,15 +15,21 @@ public readonly record struct UserName : IValueObject<UserName, string>
     public string Value { get; } = Default;
 
     public static implicit operator string(UserName userName) => userName.Value;
-    public static explicit operator UserName(string value) => Create(value).IfFailThrow();
+    public static explicit operator UserName(string value) => Create(value).ThrowIfFail();
 
-    public static Try<UserName> Create(string rawValue) => () =>
-        NonEmptyLatinString.Create(rawValue.Trim())
-            .Bind(IsValidUserName).Match(
-                Succ: nonEmpty => new UserName(nonEmpty),
-                Fail: ex => new Result<UserName>(new InvalidUserNameException(ex.Message)));
+    public static Fin<UserName> Create(string rawValue)
+    {
+        Fin<UserName> result =
+            from nonEmpty in NonEmptyString.Create(rawValue.Trim())
+            from latin in LatinString.Create(nonEmpty)
+            from minLength in NonNegativeInteger.Create(MinimumLength)
+            from bounded in BoundedString.Create(latin, minLength, None)
+            select new UserName(bounded);
 
-    private static Try<NonEmptyLatinString> IsValidUserName(NonEmptyLatinString value) =>
-        () => value.Value.Length >= MinimumLength ? value
-            : new Result<NonEmptyLatinString>(new InvalidStringException(LengthErrorMessage));
+        return result.BiMap(
+            Succ: x => x,
+            Fail: error => error.AddPrefix(Prefix));
+    }
+
+    public override string ToString() => Value;
 }

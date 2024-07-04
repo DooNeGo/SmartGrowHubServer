@@ -1,3 +1,5 @@
-﻿namespace SmartGrowHubServer.Responses;
+﻿using SmartGrowHubServer.DTOs;
 
-public sealed record LoginResponse(string DisplayName, string JwtToken);
+namespace SmartGrowHubServer.Responses;
+
+public sealed record LoginResponse(UserDto User, string JwtToken);

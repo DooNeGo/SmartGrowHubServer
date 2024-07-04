@@ -1,11 +1,10 @@
-﻿using SmartGrowHubServer.Domain.Exceptions;
-using System.Globalization;
+﻿using SmartGrowHubServer.Domain.Common.Interfaces;
 
 namespace SmartGrowHubServer.Domain.Common;
 
 public readonly record struct NonEmptyString : IValueObject<NonEmptyString, string>
 {
-    private const string ErrorMessage = "The value must not be empty or contain spaces";
+    private const string ErrorMessage = "The value must not be empty or contain only spaces";
 
     internal static NonEmptyString Default { get; } = (NonEmptyString)"Empty";
 
@@ -14,19 +13,11 @@ public readonly record struct NonEmptyString : IValueObject<NonEmptyString, stri
     public string Value { get; } = Default;
 
     public static implicit operator string(NonEmptyString value) => value.Value;
-    public static explicit operator NonEmptyString(string value) => Create(value).IfFailThrow();
+    public static explicit operator NonEmptyString(string value) => Create(value).ThrowIfFail();
 
-    public static Try<NonEmptyString> Create(string? rawValue) => () =>
+    public static Fin<NonEmptyString> Create(string rawValue) =>
         !string.IsNullOrWhiteSpace(rawValue) ? new NonEmptyString(rawValue)
-            : new Result<NonEmptyString>(new InvalidStringException(ErrorMessage));
+            : FinFail<NonEmptyString>(ErrorMessage);
 
     public override string ToString() => Value;
-
-    public NonEmptyString ToUpper() => new(Value.ToUpper(CultureInfo.CurrentCulture));
-
-    public NonEmptyString ToUpper(CultureInfo culture) => new(Value.ToUpper(culture));
-
-    public NonEmptyString ToLower() => new(Value.ToLower(CultureInfo.CurrentCulture));
-
-    public NonEmptyString ToLower(CultureInfo culture) => new(Value.ToLower(culture));
 }

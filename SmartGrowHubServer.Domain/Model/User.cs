@@ -17,35 +17,15 @@ public sealed record User(
         default, [])
     { }    // Used by EF Core
 
-    public static Try<User> Create(
-        string userNameRaw, string passwordRaw, string emailRaw,
-        string displayNameRaw, Try<ImmutableArray<GrowHub>> hubsTry)
-    {
-        Try<UserName> userNameTry = UserName.Create(userNameRaw);
-        Try<Password> passwordTry = Password.Create(passwordRaw);
-        Try<EmailAddress> emailTry = EmailAddress.Create(emailRaw);
-        Try<NonEmptyString> displayNameTry = NonEmptyString.Create(displayNameRaw);
-
-        return Create(userNameTry, passwordTry, emailTry, displayNameTry, hubsTry);
-    }
-
-    public static Try<User> Create(
-        Try<UserName> userNameTry, Try<Password> passwordTry,
-        Try<EmailAddress> emailTry, Try<NonEmptyString> displayNameTry,
-        Try<ImmutableArray<GrowHub>> hubsTry)
-    {
-        var result =
-            from userName in userNameTry
-            from password in passwordTry
-            from email in emailTry
-            from displayName in displayNameTry
-            from hubs in hubsTry
-            select (userName, password, email, displayName, hubs);
-
-        return result.Map(tuple => new User(
-            Common.Id<User>.Create(),
-            tuple.userName, tuple.password,
-            tuple.email, tuple.displayName,
-            tuple.hubs));
-    }
+    public static Fin<User> Create(
+        string userNameRaw, string passwordRaw,
+        string emailRaw, string displayNameRaw) =>
+            from userName in UserName.Create(userNameRaw)
+            from password in Password.Create(passwordRaw)
+            from email in EmailAddress.Create(emailRaw)
+            from displayName in NonEmptyString.Create(displayNameRaw)
+            select new User(
+                Common.Id.Create<User>(),
+                userName, password,
+                email, displayName, []);
 }

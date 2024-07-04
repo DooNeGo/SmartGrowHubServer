@@ -1,4 +1,6 @@
-﻿using SmartGrowHubServer.Domain.Exceptions;
+﻿using SmartGrowHubServer.Domain.Common.Interfaces;
+using SmartGrowHubServer.Domain.Exceptions;
+using SmartGrowHubServer.Domain.Extensions;
 using System.ComponentModel.DataAnnotations;
 
 namespace SmartGrowHubServer.Domain.Common;
@@ -6,6 +8,7 @@ namespace SmartGrowHubServer.Domain.Common;
 public readonly record struct EmailAddress : IValueObject<EmailAddress, string>
 {
     private const string ErrorMessage = "Invalid email address";
+    private const string Prefix = "Email:";
 
     private static readonly EmailAddressAttribute Attribute = new();
     private static readonly InvalidStringException Exception = new(ErrorMessage);
@@ -16,16 +19,23 @@ public readonly record struct EmailAddress : IValueObject<EmailAddress, string>
     public string Value { get; } = Default;
 
     public static implicit operator string(EmailAddress email) => email.Value;
-    public static explicit operator EmailAddress(string value) => Create(value).IfFailThrow();
+    public static explicit operator EmailAddress(string value) => Create(value).ThrowIfFail();
 
-    public static Try<EmailAddress> Create(string rawValue) => () =>
-        NonEmptyLatinString.Create(rawValue.Trim()).Bind(IsValidEmailAddress).Match(
-            Succ: value => new EmailAddress(value),
-            Fail: ex => new Result<EmailAddress>(new InvalidEmailAddressException(ex.Message)));
+    public static Fin<EmailAddress> Create(string rawValue)
+    {
+        Fin<EmailAddress> result =
+            from nonEmpty in NonEmptyString.Create(rawValue.Trim())
+            from _ in IsValidEmailAddress(nonEmpty)
+            from latin in LatinString.Create(nonEmpty)
+            select new EmailAddress(latin);
+
+        return result.BiMap(
+            Succ: x => x,
+            Fail: error => error.AddPrefix(Prefix));
+    }
+
+    private static Fin<string> IsValidEmailAddress(string value) =>
+        Attribute.IsValid(value) ? value : FinFail<string>(Exception);
 
     public override string ToString() => Value;
-
-    private static Try<NonEmptyLatinString> IsValidEmailAddress(NonEmptyLatinString latinString) =>
-        () => Attribute.IsValid((string)latinString) ? latinString
-            : new Result<NonEmptyLatinString>(Exception);
 }

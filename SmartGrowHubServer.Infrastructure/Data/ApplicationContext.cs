@@ -36,9 +36,14 @@ internal sealed class ApplicationContext : DbContext, IApplicationContext
         base.ConfigureConventions(configurationBuilder);
 
         configurationBuilder
-            .AddConversion<EmailAddress, EmailAddressToStringConverter>()
-            .AddConversion<NonEmptyString, NonEmptyStringConverter>()
-            .AddConversion<CreatedAt, CreatedAtToDateConverter>()
+            .AddConversion(new ValueObjectConverter<EmailAddress, string>())
+            .AddConversion(new ValueObjectConverter<NonEmptyString, string>())
+            .AddConversion(new ValueObjectConverter<LatinString, string>())
+            .AddConversion(new ValueObjectConverter<BoundedString, string>())
+            .AddConversion(new ValueObjectConverter<NonNegativeInteger, int>())
+            .AddConversion(new ValueObjectConverter<UserName, string>())
+            .AddConversion(new ValueObjectConverter<Password, string>())
+            .AddConversion(new ValueObjectConverter<CreatedAt, DateOnly>())
             .AddIdConversion<User>()
             .AddIdConversion<GrowHub>()
             .AddIdConversion<Plant>()

@@ -4,29 +4,41 @@ using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public sealed record Setting(Id<Setting> Id, SettingType Type,
-    ImmutableArray<Component> Components, Id<GrowHub> GrowHubId)
+public sealed record Setting(
+    Id<Setting> Id,
+    SettingType Type,
+    SettingMode Mode,
+    ImmutableArray<Component> Components,
+    Id<GrowHub> GrowHubId)
 {
-    private Setting()
-        : this(default, default, [], default) { }     // Used by EF Core
+    private static readonly ItemNotFoundException NotFoundException =
+        new(nameof(Component), nameof(Setting));
 
-    public static Try<Setting> Create(SettingType type, Id<GrowHub> hubId,
-        Try<ImmutableArray<Component>> componentsTry) => () =>
-        componentsTry.Match(
-            Succ: components => new Setting(
-                Common.Id<Setting>.Create(),
-                type, components, hubId),
-            Fail: ex => new Result<Setting>(ex));
+    private static readonly ItemAlreadyExistsException AlreadyExistsException =
+        new(nameof(Component), nameof(Setting));
 
-    public Try<Setting> AddComponent(Component component) => () =>
+    private Setting() : this(
+        default, default,
+        default, [], default)
+    { }     // Used by EF Core
+
+    public static Fin<Setting> Create(
+        SettingType type, SettingMode mode, Id<GrowHub> hubId,
+        Fin<ImmutableArray<Component>> componentsFin) =>
+            from components in componentsFin
+            select new Setting(
+                Common.Id.Create<Setting>(),
+                type, mode, components, hubId);
+
+    public Fin<Setting> AddComponent(Component component) =>
         !Components.Contains(component)
             ? this with { Components = Components.Add(component) }
-            : new Result<Setting>(new ComponentAlreadyExistsException());
+            : FinFail<Setting>(AlreadyExistsException);
 
-    public Try<Setting> RemoveComponent(Component component) => () =>
+    public Fin<Setting> RemoveComponent(Component component)
     {
         int index = Components.IndexOf(component);
-        if (index is -1) return new Result<Setting>(new ComponentNotFoundException());
+        if (index is -1) return FinFail<Setting>(NotFoundException);
         return this with { Components = Components.RemoveAt(index) };
-    };
+    }
 }
