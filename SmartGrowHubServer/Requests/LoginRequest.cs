@@ -1,3 +1,5 @@
 ﻿namespace SmartGrowHubServer.Requests;
 
-public sealed record LoginRequest(string UserName, string Password);
+public sealed record LoginRequest(
+    string? UserName,
+    string? Password);
