@@ -12,7 +12,7 @@ public readonly record struct BoundedString : IValueObject<BoundedString, string
     public static explicit operator BoundedString(string value) => Create(value).ThrowIfFail();
 
     public static Fin<BoundedString> Create(string rawValue) =>
-        new BoundedString(rawValue);
+        FinSucc(new BoundedString(rawValue));
 
     public static Fin<BoundedString> Create(
         string rawValue, Option<NonNegativeInteger> minLength,
@@ -23,26 +23,33 @@ public readonly record struct BoundedString : IValueObject<BoundedString, string
 
     private static Fin<BoundedString> ValidateMaxLength(
         BoundedString bounded, Option<NonNegativeInteger> maxLengthOption) =>
-            ValidateLength(bounded, maxLengthOption, GetMaxLengthErrorMessage,
+            ValidateLength(bounded, maxLengthOption, GetMaxLengthError,
                 (str, max) => str.Length <= max);
 
     private static Fin<BoundedString> ValidateMinLength(
-        BoundedString bounded,Option<NonNegativeInteger> minLengthOption) =>
-            ValidateLength(bounded, minLengthOption, GetMinLengthErrorMessage,
+        BoundedString bounded, Option<NonNegativeInteger> minLengthOption) =>
+            ValidateLength(bounded, minLengthOption, GetMinLengthError,
                 (str, min) => str.Length >= min || str.Length is 0);
 
     private static Fin<BoundedString> ValidateLength(
         BoundedString bounded, Option<NonNegativeInteger> lengthOption,
-        Func<int, string> formatError,
+        Func<int, Error> getError,
         Func<string, NonNegativeInteger, bool> isValid) =>
             lengthOption.Match(
                 Some: length => isValid(bounded, length)
                     ? FinSucc(bounded)
-                    : FinFail<BoundedString>(formatError(length)),
+                    : FinFail<BoundedString>(getError(length)),
                 None: bounded);
+
+    private static Error GetMinLengthError(int minLength) =>
+        Error.New(GetMinLengthErrorMessage(minLength));
+
+    private static Error GetMaxLengthError(int maxLength) =>
+        Error.New(GetMaxLengthErrorMessage(maxLength));
 
     private static string GetMinLengthErrorMessage(int minLength) =>
         $"The value must not be shorter than {minLength}";
+
     private static string GetMaxLengthErrorMessage(int maxLength) =>
         $"The value must not be longer than {maxLength}";
 

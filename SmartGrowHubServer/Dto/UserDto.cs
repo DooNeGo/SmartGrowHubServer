@@ -1,6 +1,6 @@
 ﻿namespace SmartGrowHubServer.DTOs;
 
-public sealed record UserDto(
+public readonly record struct UserDto(
     Ulid Id,
     string UserName,
     string Email,

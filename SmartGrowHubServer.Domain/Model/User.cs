@@ -11,12 +11,6 @@ public sealed record User(
     NonEmptyString DisplayName,
     ImmutableArray<GrowHub> GrowHubs)
 {
-    private User() : this(
-        default, default,
-        default, default,
-        default, [])
-    { }    // Used by EF Core
-
     public static Fin<User> Create(
         string userNameRaw, string passwordRaw,
         string emailRaw, string displayNameRaw) =>

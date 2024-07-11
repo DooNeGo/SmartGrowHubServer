@@ -6,7 +6,8 @@ public readonly record struct NonEmptyString : IValueObject<NonEmptyString, stri
 {
     private const string ErrorMessage = "The value must not be empty or contain only spaces";
 
-    internal static NonEmptyString Default { get; } = (NonEmptyString)"Empty";
+    private static readonly NonEmptyString Default = (NonEmptyString)"Empty";
+    private static readonly Error Error = Error.New(ErrorMessage);
 
     private NonEmptyString(string value) => Value = value;
 
@@ -17,7 +18,7 @@ public readonly record struct NonEmptyString : IValueObject<NonEmptyString, stri
 
     public static Fin<NonEmptyString> Create(string rawValue) =>
         !string.IsNullOrWhiteSpace(rawValue) ? new NonEmptyString(rawValue)
-            : FinFail<NonEmptyString>(ErrorMessage);
+            : FinFail<NonEmptyString>(Error);
 
     public override string ToString() => Value;
 }

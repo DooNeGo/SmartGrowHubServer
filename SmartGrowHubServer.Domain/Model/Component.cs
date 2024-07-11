@@ -9,11 +9,6 @@ public sealed record Component(
     NonEmptyString Unit,
     Id<Setting> SettingId) : IEquatable<Component>
 {
-    private Component() : this(
-        default, default,
-        default, default,
-        default) { } // Used by EF Core
-
     public override int GetHashCode() => Id.GetHashCode();
 
     public bool Equals(Component? other) => other is not null && Id == other.Id;

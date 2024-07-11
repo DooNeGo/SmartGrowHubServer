@@ -14,11 +14,6 @@ public sealed record GrowHub(
     private static readonly ItemAlreadyExistsException AlreadyExistsException =
         new(nameof(SensorReading), nameof(GrowHub));
 
-    private GrowHub() : this(
-        default, [], [],
-        default, default)
-    { }   // Used by EF Core
-
     public static Fin<GrowHub> Create(
         Fin<ImmutableArray<Setting>> settingsFin, Id<User> userId) =>
             from settings in settingsFin

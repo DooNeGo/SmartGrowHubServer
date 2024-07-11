@@ -17,11 +17,6 @@ public sealed record Setting(
     private static readonly ItemAlreadyExistsException AlreadyExistsException =
         new(nameof(Component), nameof(Setting));
 
-    private Setting() : this(
-        default, default,
-        default, [], default)
-    { }     // Used by EF Core
-
     public static Fin<Setting> Create(
         SettingType type, SettingMode mode, Id<GrowHub> hubId,
         Fin<ImmutableArray<Component>> componentsFin) =>

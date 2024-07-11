@@ -10,12 +10,6 @@ public sealed record SensorReading(
     CreatedAt CreatedAt,
     Id<GrowHub> GrowHubId)
 {
-    private SensorReading() : this(
-        default, default,
-        default, default,
-        default, default)
-    { }    // Used by EF Core
-
     public static Fin<SensorReading> Create(
         SensorType type, string valueRaw, string unitRaw,
         DateOnly createdAtRaw, Id<GrowHub> hubId) =>
