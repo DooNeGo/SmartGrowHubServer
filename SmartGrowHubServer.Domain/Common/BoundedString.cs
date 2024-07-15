@@ -32,7 +32,8 @@ public readonly record struct BoundedString : IValueObject<BoundedString, string
                 (str, min) => str.Length >= min || str.Length is 0);
 
     private static Fin<BoundedString> ValidateLength(
-        BoundedString bounded, Option<NonNegativeInteger> lengthOption,
+        BoundedString bounded,
+        Option<NonNegativeInteger> lengthOption,
         Func<int, Error> getError,
         Func<string, NonNegativeInteger, bool> isValid) =>
             lengthOption.Match(

@@ -4,12 +4,11 @@ using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public sealed record Setting(
+public readonly record struct Setting(
     Id<Setting> Id,
     SettingType Type,
     SettingMode Mode,
-    ImmutableArray<Component> Components,
-    Id<GrowHub> GrowHubId)
+    ImmutableArray<Component> Components)
 {
     private static readonly ItemNotFoundException NotFoundException =
         new(nameof(Component), nameof(Setting));
@@ -17,13 +16,12 @@ public sealed record Setting(
     private static readonly ItemAlreadyExistsException AlreadyExistsException =
         new(nameof(Component), nameof(Setting));
 
-    public static Fin<Setting> Create(
-        SettingType type, SettingMode mode, Id<GrowHub> hubId,
-        Fin<ImmutableArray<Component>> componentsFin) =>
-            from components in componentsFin
-            select new Setting(
-                Common.Id.Create<Setting>(),
-                type, mode, components, hubId);
+    public static Identity<Setting> Create(
+        SettingType type, SettingMode mode,
+        ImmutableArray<Component> components) =>
+        Id<Setting>(new Setting(
+            Common.Id.Create<Setting>(),
+            type, mode, components));
 
     public Fin<Setting> AddComponent(Component component) =>
         !Components.Contains(component)

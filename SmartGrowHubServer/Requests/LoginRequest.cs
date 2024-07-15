@@ -1,5 +1,5 @@
 ﻿namespace SmartGrowHubServer.Requests;
 
-public sealed record LoginRequest(
+public readonly record struct LoginRequest(
     string? UserName,
     string? Password);

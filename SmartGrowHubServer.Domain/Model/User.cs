@@ -1,15 +1,13 @@
 ﻿using SmartGrowHubServer.Domain.Common;
-using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public sealed record User(
+public readonly record struct User(
     Id<User> Id,
     UserName UserName,
     Password Password,
     EmailAddress Email,
-    NonEmptyString DisplayName,
-    ImmutableArray<GrowHub> GrowHubs)
+    NonEmptyString DisplayName)
 {
     public static Fin<User> Create(
         string userNameRaw, string passwordRaw,
@@ -21,5 +19,5 @@ public sealed record User(
             select new User(
                 Common.Id.Create<User>(),
                 userName, password,
-                email, displayName, []);
+                email, displayName);
 }

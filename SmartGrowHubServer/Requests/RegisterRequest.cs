@@ -1,6 +1,6 @@
 ﻿namespace SmartGrowHubServer.Requests;
 
-public sealed record RegisterRequest(
+public readonly record struct RegisterRequest(
     string? UserName,
     string? Password,
     string? Email,

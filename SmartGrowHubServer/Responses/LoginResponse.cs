@@ -2,4 +2,4 @@
 
 namespace SmartGrowHubServer.Responses;
 
-public sealed record LoginResponse(UserDto User, string JwtToken);
+public readonly record struct LoginResponse(UserDto User, string JwtToken);

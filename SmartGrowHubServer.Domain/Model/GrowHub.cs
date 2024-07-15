@@ -4,26 +4,21 @@ using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public sealed record GrowHub(
+public readonly record struct GrowHub(
     Id<GrowHub> Id,
     ImmutableArray<SensorReading> SensorReadings,
     ImmutableArray<Setting> Settings,
-    Option<Id<Plant>> PlantId,
-    Id<User> UserId) : IEquatable<GrowHub>
+    Option<Plant> Plant)
 {
     private static readonly ItemAlreadyExistsException AlreadyExistsException =
         new(nameof(SensorReading), nameof(GrowHub));
 
-    public static Fin<GrowHub> Create(
-        Fin<ImmutableArray<Setting>> settingsFin, Id<User> userId) =>
-            from settings in settingsFin
-            select new GrowHub(
-                Common.Id.Create<GrowHub>(),
-                [], settings, None, userId);
+    public static Identity<GrowHub> Create(ImmutableArray<Setting> settings) =>
+        Id<GrowHub>(new(Common.Id.Create<GrowHub>(), [], settings, None));
 
     public override int GetHashCode() => Id.GetHashCode();
 
-    public bool Equals(GrowHub? other) => other is not null && Id == other.Id;
+    public bool Equals(GrowHub other) => Id == other.Id;
 
     public Fin<GrowHub> AddReading(SensorReading reading) =>
         !SensorReadings.Contains(reading)

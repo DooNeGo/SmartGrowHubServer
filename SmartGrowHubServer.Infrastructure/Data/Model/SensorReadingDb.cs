@@ -8,11 +8,13 @@ public sealed record SensorReadingDb(
     string Value,
     string Unit,
     DateOnly CreatedAt,
-    GrowHubDb Hub)
+    Ulid GrowHubId,
+    GrowHubDb GrowHub)
 {
     private SensorReadingDb() : this(
         default!, default,
         default!, default!,
-        default, default!)
+        default, default,
+        default!)
     { }    // Used by EF Core
 }

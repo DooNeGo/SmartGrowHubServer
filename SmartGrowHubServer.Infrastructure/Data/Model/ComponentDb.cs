@@ -7,11 +7,12 @@ public sealed record ComponentDb(
     ComponentType Type,
     int Value,
     string Unit,
+    Ulid SettingId,
     SettingDb Setting)
 {
     private ComponentDb() : this(
         default!, default,
         default, default!,
-        default!)
+        default, default!)
     { } // Used by EF Core
 }

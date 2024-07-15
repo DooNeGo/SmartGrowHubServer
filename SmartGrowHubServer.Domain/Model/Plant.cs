@@ -2,14 +2,10 @@
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public sealed record Plant(
-    Id<Plant> Id,
-    NonEmptyString Name,
-    Id<GrowHub> GrowHubId)
+public readonly record struct Plant(
+    Id<Plant> Id, NonEmptyString Name)
 {
-    public static Fin<Plant> Create(string nameRaw, Id<GrowHub> hubId) =>
+    public static Fin<Plant> Create(string nameRaw) =>
         from name in NonEmptyString.Create(nameRaw)
-        select new Plant(
-            Common.Id.Create<Plant>(),
-            name, hubId);
+        select new Plant(Common.Id.Create<Plant>(), name);
 }

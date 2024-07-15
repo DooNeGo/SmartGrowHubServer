@@ -8,10 +8,12 @@ public sealed record SettingDb(
     SettingType Type,
     SettingMode Mode,
     ImmutableArray<ComponentDb> Components,
+    Ulid GrowHubId,
     GrowHubDb GrowHub)
 {
     private SettingDb() : this(
         default!, default,
-        default, [], default!)
+        default, [],
+        default, default!)
     { }     // Used by EF Core
 }

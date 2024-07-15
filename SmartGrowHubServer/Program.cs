@@ -51,15 +51,16 @@ apiGroup.MapPost("/auth/login", (LoginRequest request) =>
         select (userName, password);
 
     return result.Match(
-        Succ: tuple => users.Find(user =>
-            user.UserName == tuple.userName &&
-            user.Password == tuple.password)
-        .Match(
-            Some: user => Results.Ok(
-                new LoginResponse(
-                    user.ToDto(),
-                    "123qwerewfcwdc123123")),
-            None: Results.NotFound()),
+        Succ: tuple => users
+            .Find(user =>
+                user.UserName == tuple.userName &&
+                user.Password == tuple.password)
+            .Match(
+                Some: user => Results.Ok(
+                    new LoginResponse(
+                        user.ToDto(),
+                        "123qwerewfcwdc123123")),
+                None: Results.NotFound()),
         Fail: error => Results.BadRequest(error.Message));
 });
 
