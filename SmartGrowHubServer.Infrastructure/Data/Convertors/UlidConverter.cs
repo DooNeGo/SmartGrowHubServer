@@ -2,7 +2,13 @@
 
 namespace SmartGrowHubServer.Infrastructure.Data.Convertors;
 
-internal sealed class UlidConverter() : ValueConverter<Ulid, byte[]>(
-    model => model.ToByteArray(),
-    provider => new(provider),
-    new ConverterMappingHints(size: 16));
+internal sealed class UlidConverter(ConverterMappingHints? mappingHints = null)
+    : ValueConverter<Ulid, byte[]>(
+            model => model.ToByteArray(),
+            provider => new Ulid(provider),
+            mappingHints: defaultHints.With(mappingHints))
+{
+    private static readonly ConverterMappingHints defaultHints = new(size: 16);
+
+    public UlidConverter() : this(null) { }
+}

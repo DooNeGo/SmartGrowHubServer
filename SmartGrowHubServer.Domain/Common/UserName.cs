@@ -3,16 +3,14 @@ using SmartGrowHubServer.Domain.Extensions;
 
 namespace SmartGrowHubServer.Domain.Common;
 
-public readonly record struct UserName : IValueObject<UserName, string>
+public sealed record UserName : IValueObject<UserName, string>
 {
     private const int MinimumLength = 6;
     private const string Prefix = "UserName:";
 
-    private static readonly UserName Default = (UserName)"EmptyUserName";
+    private UserName(string value) => Value = value;
 
-    private UserName(string str) => Value = str;
-
-    public string Value { get; } = Default;
+    public string Value { get; }
 
     public static implicit operator string(UserName userName) => userName.Value;
     public static explicit operator UserName(string value) => Create(value).ThrowIfFail();

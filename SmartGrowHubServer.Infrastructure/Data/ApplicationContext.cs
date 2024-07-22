@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SmartGrowHubServer.Infrastructure.Data.CompiledModels;
 using SmartGrowHubServer.Infrastructure.Data.Convertors;
 using SmartGrowHubServer.Infrastructure.Data.Model;
 
@@ -25,7 +26,9 @@ internal sealed class ApplicationContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
 
-        optionsBuilder.UseSqlServer(ConnectionString);
+        optionsBuilder
+            .UseSqlServer(ConnectionString)
+            .UseModel(ApplicationContextModel.Instance);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

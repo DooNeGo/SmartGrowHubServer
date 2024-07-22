@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<IsAotCompatible>true</IsAotCompatible>
     <AnalysisLevel>latest-recommended</AnalysisLevel>
   </PropertyGroup>
 
@@ -22,10 +23,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SmartGrowHubServer.ApplicationL\SmartGrowHubServer.ApplicationL.csproj" />
     <ProjectReference Include="..\SmartGrowHubServer.Domain\SmartGrowHubServer.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\Handlers\Queries\" />
   </ItemGroup>
 
 </Project>

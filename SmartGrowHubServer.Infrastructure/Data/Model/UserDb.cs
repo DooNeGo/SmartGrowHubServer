@@ -1,4 +1,6 @@
-﻿using System.Collections.Immutable;
+﻿using SmartGrowHubServer.Domain.Common;
+using SmartGrowHubServer.Domain.Model;
+using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Infrastructure.Data.Model;
 
@@ -15,4 +17,8 @@ public sealed record UserDb(
         default!, default!,
         default!, [])
     { }    // Used by EF Core
+
+    public Fin<User> ToDomain() =>
+        User.Create(new Id<User>(Id), UserName,
+            Password, Email, DisplayName);
 }

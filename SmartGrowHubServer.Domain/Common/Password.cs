@@ -3,16 +3,14 @@ using SmartGrowHubServer.Domain.Extensions;
 
 namespace SmartGrowHubServer.Domain.Common;
 
-public readonly record struct Password : IValueObject<Password, string>
+public sealed record Password : IValueObject<Password, string>
 {
     private const int MinimumLength = 8;
     private const string Prefix = "Password:";
 
-    private static readonly Password Default = (Password)"Password_Was_Empty";
-
     private Password(string value) => Value = value;
 
-    public string Value { get; } = Default;
+    public string Value { get; }
 
     public static implicit operator string(Password value) => value.Value;
     public static explicit operator Password(string value) => Create(value).ThrowIfFail();

@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct Setting(
+public sealed record Setting(
     Id<Setting> Id,
     SettingType Type,
     SettingMode Mode,
@@ -17,11 +17,19 @@ public readonly record struct Setting(
         new(nameof(Component), nameof(Setting));
 
     public static Identity<Setting> Create(
+        Id<Setting> id, SettingType type, SettingMode mode,
+        ImmutableArray<Component> components) =>
+            Id<Setting>(new Setting(id, type, mode, components));
+
+    public static Identity<Setting> Create(
         SettingType type, SettingMode mode,
         ImmutableArray<Component> components) =>
-        Id<Setting>(new Setting(
-            Common.Id.Create<Setting>(),
-            type, mode, components));
+            Create(Common.Id.Create<Setting>(),
+                type, mode, components);
+
+    public override int GetHashCode() => Id.GetHashCode();
+
+    public bool Equals(Setting? other) => other is not null && Id == other.Id;
 
     public Fin<Setting> AddComponent(Component component) =>
         !Components.Contains(component)

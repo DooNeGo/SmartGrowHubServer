@@ -1,46 +1,44 @@
-﻿using SmartGrowHubServer.Domain.Common.Interfaces;
+﻿namespace SmartGrowHubServer.Domain.Common;
 
-namespace SmartGrowHubServer.Domain.Common;
-
-public readonly record struct BoundedString : IValueObject<BoundedString, string>
+public sealed record BoundedString
 {
     private BoundedString(string value) => Value = value;
 
     public string Value { get; }
 
     public static implicit operator string(BoundedString value) => value.Value;
-    public static explicit operator BoundedString(string value) => Create(value).ThrowIfFail();
+    public static explicit operator BoundedString(string value) => Create(value).Value;
 
-    public static Fin<BoundedString> Create(string rawValue) =>
-        FinSucc(new BoundedString(rawValue));
+    public static Identity<BoundedString> Create(string rawValue) =>
+        Id(new BoundedString(rawValue));
 
     public static Fin<BoundedString> Create(
         string rawValue, Option<NonNegativeInteger> minLength,
         Option<NonNegativeInteger> maxLength) =>
-            Create(rawValue)
-                .Bind(bounded => ValidateMinLength(bounded, minLength))
-                .Bind(bounded => ValidateMaxLength(bounded, maxLength));
+            from _1 in ValidateMinLength(rawValue, in minLength)
+            from _2 in ValidateMaxLength(rawValue, in maxLength)
+            select new BoundedString(rawValue);
 
-    private static Fin<BoundedString> ValidateMaxLength(
-        BoundedString bounded, Option<NonNegativeInteger> maxLengthOption) =>
-            ValidateLength(bounded, maxLengthOption, GetMaxLengthError,
+    private static Fin<string> ValidateMaxLength(
+        string value, in Option<NonNegativeInteger> maxLength) =>
+            ValidateLength(value, in maxLength, GetMaxLengthError,
                 (str, max) => str.Length <= max);
 
-    private static Fin<BoundedString> ValidateMinLength(
-        BoundedString bounded, Option<NonNegativeInteger> minLengthOption) =>
-            ValidateLength(bounded, minLengthOption, GetMinLengthError,
+    private static Fin<string> ValidateMinLength(
+        string value, in Option<NonNegativeInteger> minLength) =>
+            ValidateLength(value, in minLength, GetMinLengthError,
                 (str, min) => str.Length >= min || str.Length is 0);
 
-    private static Fin<BoundedString> ValidateLength(
-        BoundedString bounded,
-        Option<NonNegativeInteger> lengthOption,
+    private static Fin<string> ValidateLength(
+        string value,
+        in Option<NonNegativeInteger> length,
         Func<int, Error> getError,
         Func<string, NonNegativeInteger, bool> isValid) =>
-            lengthOption.Match(
-                Some: length => isValid(bounded, length)
-                    ? FinSucc(bounded)
-                    : FinFail<BoundedString>(getError(length)),
-                None: bounded);
+            length.Match(
+                Some: length => isValid(value, length)
+                    ? FinSucc(value)
+                    : FinFail<string>(getError(length)),
+                None: value);
 
     private static Error GetMinLengthError(int minLength) =>
         Error.New(GetMinLengthErrorMessage(minLength));

@@ -5,18 +5,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SmartGrowHubServer.Domain.Common;
 
-public readonly record struct EmailAddress : IValueObject<EmailAddress, string>
+public sealed record EmailAddress : IValueObject<EmailAddress, string>
 {
     private const string ErrorMessage = "Invalid email address";
     private const string Prefix = "Email:";
 
     private static readonly EmailAddressAttribute Attribute = new();
     private static readonly InvalidStringException Exception = new(ErrorMessage);
-    private static readonly EmailAddress Default = (EmailAddress)"EmptyEmail@empty.com";
 
     private EmailAddress(string value) => Value = value;
 
-    public string Value { get; } = Default;
+    public string Value { get; }
 
     public static implicit operator string(EmailAddress email) => email.Value;
     public static explicit operator EmailAddress(string value) => Create(value).ThrowIfFail();

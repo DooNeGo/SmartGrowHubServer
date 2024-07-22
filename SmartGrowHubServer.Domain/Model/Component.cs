@@ -2,7 +2,7 @@
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct Component(
+public sealed record Component(
     Id<Component> Id,
     ComponentType Type,
     int Value,
@@ -10,5 +10,5 @@ public readonly record struct Component(
 {
     public override int GetHashCode() => Id.GetHashCode();
 
-    public bool Equals(Component other) => Id == other.Id;
+    public bool Equals(Component? other) => other is not null && Id == other.Id;
 }

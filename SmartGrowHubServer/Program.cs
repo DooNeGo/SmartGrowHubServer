@@ -1,5 +1,8 @@
 using LanguageExt;
+using Mediator;
+using Microsoft.AspNetCore.Mvc;
 using SmartGrowHubServer.ApplicationL;
+using SmartGrowHubServer.ApplicationL.Queries.Users;
 using SmartGrowHubServer.Domain.Common;
 using SmartGrowHubServer.Domain.Model;
 using SmartGrowHubServer.DTOs.Extensions;
@@ -32,6 +35,15 @@ ImmutableArray<User> users =
         "DooNeGo")
     .ThrowIfFail()
 ];
+
+apiGroup.MapGet("/user", async ([FromServices] IMediator mediator, Ulid id) =>
+    (await mediator
+        .Send(new GetUserByIdQuery(new Id<User>(in id)))
+        .ConfigureAwait(false))
+        .Match(
+            Some: user => Results.Ok(user.ToDto()),
+            None: () => Results.NotFound(),
+            Fail: _ => Results.StatusCode(500)));
 
 apiGroup.MapPost("/auth/register", (RegisterRequest request) =>
     User.Create(

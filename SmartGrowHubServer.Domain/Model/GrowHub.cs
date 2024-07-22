@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct GrowHub(
+public sealed record GrowHub(
     Id<GrowHub> Id,
     ImmutableArray<SensorReading> SensorReadings,
     ImmutableArray<Setting> Settings,
@@ -14,11 +14,11 @@ public readonly record struct GrowHub(
         new(nameof(SensorReading), nameof(GrowHub));
 
     public static Identity<GrowHub> Create(ImmutableArray<Setting> settings) =>
-        Id<GrowHub>(new(Common.Id.Create<GrowHub>(), [], settings, None));
+        Id<GrowHub>(new GrowHub(Common.Id.Create<GrowHub>(), [], settings, None));
 
     public override int GetHashCode() => Id.GetHashCode();
 
-    public bool Equals(GrowHub other) => Id == other.Id;
+    public bool Equals(GrowHub? other) => other is not null && Id == other.Id;
 
     public Fin<GrowHub> AddReading(SensorReading reading) =>
         !SensorReadings.Contains(reading)

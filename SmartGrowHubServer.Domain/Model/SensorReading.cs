@@ -2,7 +2,7 @@
 
 namespace SmartGrowHubServer.Domain.Model;
 
-public readonly record struct SensorReading(
+public sealed record SensorReading(
     Id<SensorReading> Id,
     SensorType Type,
     NonEmptyString Value,
@@ -18,4 +18,8 @@ public readonly record struct SensorReading(
             select new SensorReading(
                 Common.Id.Create<SensorReading>(),
                 type, value, unit, createdAt);
+
+    public override int GetHashCode() => Id.GetHashCode();
+
+    public bool Equals(SensorReading? other) => other is not null && Id == other.Id;
 }
